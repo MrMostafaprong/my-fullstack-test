@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Full Stack Test</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+        }
+
+        .card {
+            width: 400px;
+            padding: 35px;
+            text-align: center;
+            background: #1b1b1b;
+            border: 1px solid #333;
+            border-radius: 18px;
+        }
+
+        button {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #result {
+            margin-top: 20px;
+            min-height: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+
+        <h1>Full Stack Test</h1>
+
+        <p>Frontend → Vercel Backend</p>
+
+        <button onclick="testBackend()">
+            Test Backend
+        </button>
+
+        <div id="result">
+            Waiting...
+        </div>
+
+    </div>
+
+    <script>
+
+        const API_URL = "YOUR_VERCEL_BACKEND_URL";
+
+        async function testBackend() {
+
+            const result = document.getElementById("result");
+
+            result.textContent = "Connecting...";
+
+            try {
+
+                const response = await fetch(
+                    `${API_URL}/api/hello`
+                );
+
+                const data = await response.json();
+
+                result.textContent = data.message;
+
+            } catch (error) {
+
+                console.error(error);
+
+                result.textContent =
+                    "Failed to connect to backend.";
+
+            }
+        }
+
+    </script>
+
+</body>
+</html>
