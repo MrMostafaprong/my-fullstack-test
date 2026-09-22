@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Full Stack Test</title>
+    <title>Products App</title>
 
     <style>
         * {
@@ -14,87 +14,206 @@
         body {
             margin: 0;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: Arial, sans-serif;
             background: #111;
             color: white;
+            padding: 40px 20px;
         }
 
-        .card {
-            width: 400px;
-            padding: 35px;
-            text-align: center;
-            background: #1b1b1b;
-            border: 1px solid #333;
-            border-radius: 18px;
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #1d1d1d;
+            color: white;
         }
 
         button {
-            padding: 12px 22px;
+            padding: 12px 18px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
         }
 
-        #result {
-            margin-top: 20px;
-            min-height: 25px;
+        .product {
+            padding: 18px;
+            margin-bottom: 10px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background: #1a1a1a;
+
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #status {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="card">
+<div class="container">
 
-        <h1>Full Stack Test</h1>
+    <h1>Products</h1>
 
-        <p>Frontend → Vercel Backend</p>
+    <div class="form">
 
-        <button onclick="testBackend()">
-            Test Backend
+        <input
+            id="name"
+            type="text"
+            placeholder="Product name"
+        >
+
+        <input
+            id="price"
+            type="number"
+            placeholder="Price"
+        >
+
+        <button onclick="addProduct()">
+            Add
         </button>
-
-        <div id="result">
-            Waiting...
-        </div>
 
     </div>
 
-    <script>
+    <div id="status"></div>
 
-        const API_URL = "https://my-fullstack-test-backend.vercel.app";
+    <div id="products"></div>
 
-        async function testBackend() {
+</div>
 
-            const result = document.getElementById("result");
+<script>
 
-            result.textContent = "Connecting...";
+const API_URL =
+    "https://my-fullstack-test-backend.vercel.app";
 
-            try {
 
-                const response = await fetch(
-                    `${API_URL}/api/hello`
-                );
+// تحميل المنتجات
+async function loadProducts() {
 
-                const data = await response.json();
+    const productsContainer =
+        document.getElementById("products");
 
-                result.textContent = data.message;
+    try {
 
-            } catch (error) {
+        const response =
+            await fetch(`${API_URL}/api/products`);
 
-                console.error(error);
+        const products =
+            await response.json();
 
-                result.textContent =
-                    "Failed to connect to backend.";
+        productsContainer.innerHTML = "";
 
-            }
+        products.forEach(product => {
+
+            const div =
+                document.createElement("div");
+
+            div.className = "product";
+
+            div.innerHTML = `
+                <strong>${product.name}</strong>
+                <span>${product.price} EGP</span>
+            `;
+
+            productsContainer.appendChild(div);
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        productsContainer.textContent =
+            "Failed to load products.";
+
+    }
+}
+
+
+// إضافة منتج
+async function addProduct() {
+
+    const name =
+        document.getElementById("name").value;
+
+    const price =
+        document.getElementById("price").value;
+
+    const status =
+        document.getElementById("status");
+
+    if (!name || !price) {
+
+        status.textContent =
+            "Enter name and price.";
+
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(`${API_URL}/api/products`, {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    name: name,
+                    price: Number(price)
+                })
+
+            });
+
+        if (!response.ok) {
+            throw new Error("Request failed");
         }
 
-    </script>
+        status.textContent =
+            "Product added successfully!";
+
+        document.getElementById("name").value = "";
+        document.getElementById("price").value = "";
+
+        await loadProducts();
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+            "Failed to add product.";
+
+    }
+}
+
+
+// تشغيل أول تحميل
+loadProducts();
+
+</script>
 
 </body>
 </html>
